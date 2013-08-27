@@ -61,11 +61,17 @@ function test(url, count, total) {
 
 		if(count === total -1){
 			
-			console.log('Scan Completed!');
-			console.log(vulns.length+' payloads succeeded');
+			
+			casper.echo('Scan Completed!', 'INFO');
+			console.log(vulns.length+' payloads succeeded:\n');
 
 			if(vulns){
-			console.log(vulns[0])
+			
+				for(i=0;i<vulns.length;i++){
+					casper.echo('Verified XSS:', 'ERROR'); 
+					console.log(vulns[i]+'\n');
+
+				}
 			}
 			
 		}
