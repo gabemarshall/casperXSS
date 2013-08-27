@@ -74,14 +74,6 @@ function test(url, count, total) {
 
 }
 
-function test1(){
-	console.log('finished');
-}
-
-function finish(){
-	console.log('Finished!');
-}
-
 for (i = 0; i < payloads.length; i++) {
 	
 		test(payloads[i], i, payloads.length);
