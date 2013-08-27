@@ -6,7 +6,8 @@ var casper = require('casper').create({
 		casper.log('XSS verified '+msg, 'warning');
 		vulns.push(tempMessage);
 
-	}
+	},
+	XSSAuditingEnabled: false
 });
 
 var fs = require('fs');
@@ -49,9 +50,6 @@ console.log('\nTrying '+xss.length+' payloads on the \''+params+'\' parameter. \
 
 casper.then(function() {
     // temporarily registering listener
-    this.on('remote.alert', function(){
-    	this.capture('ugh.png');
-    });
 });
 
 function test(url, count, total) {
