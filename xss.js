@@ -1,9 +1,9 @@
 var casper = require('casper').create({
 	logLevel: 'warning',
 	verbose: true,
-	onAlert: function(msg){
-		tempMessage = 'XSS verified '+msg+'';
-		casper.log('XSS verified '+msg, 'warning');
+	onAlert: function(msg) {
+		tempMessage = 'XSS verified ' + msg + '';
+		casper.log('XSS verified ' + msg, 'warning');
 		vulns.push(tempMessage);
 
 	},
@@ -14,42 +14,71 @@ var fs = require('fs');
 var utils = require('utils');
 var data = fs.read('rsnake.txt');
 var xss = data.toString().split("\n");
+var uri;
 var payloads = [];
 
 var params = casper.cli.get("param");
+var cookieFile = casper.cli.get("cookies");
 var url = casper.cli.get("url");
+var string = casper.cli.raw.get("string");
 var vulns = [];
 var count;
 
-if (!params){
-	console.log('Welcome to CasperXSS\nExample usage: casperjs xss.js --url=example.com --param=example ')
-	casper.exit();
+if (cookieFile) {
+	var filedata = fs.read(cookieFile);
+	var jsonCookies = JSON.parse(filedata);
+
+	for (i = 0; i < jsonCookies.length; i++) {
+		console.log("adding cookie")
+		phantom.addCookie({
+			'name': jsonCookies[i].name,
+			'value': jsonCookies[i].value,
+			'domain': jsonCookies[i].domain,
+			'hostOnly': jsonCookies[i].hostOnly,
+			'secure': jsonCookies[i].secure,
+			'session': jsonCookies[i].session,
+			'storeId': jsonCookies[i].storeId,
+			'httpOnly': jsonCookies[i].httpOnly
+		})
+	}
 }
 
-if(params && !url){
+
+
+if (casper.cli.has("params") !== false) {
+	uri = url + '?' + params + '=';
+} 
+else if (casper.cli.has("string")){
+	uri = url + '/' + string;
+}
+else {
+	uri = url + '/';
+}
+
+if (!url) {
 	console.log('URL is missing, please try again Ex: casperjs xss.js --url=example.com --param=example')
 	casper.exit();
 }
 
-console.log('\nTrying '+xss.length+' payloads on the \''+params+'\' parameter. \nSit back and enjoy the ride.\n');
+console.log('\nTrying ' + xss.length + ' payloads on the \'' + params + '\' parameter. \nSit back and enjoy the ride.\n');
 
 // add regex to clean up xss validation msg (\[object Casper\], currently at)
 
 
-	for (z = 0; z < xss.length; z++) {
-		payloads.push(url+'?' + params + '=' + xss[z] + '');
-	}
+for (z = 0; z < xss.length; z++) {
+	payloads.push(uri + xss[z] + '');
+}
 
-	casper.start(url, function(status) {
+casper.start(url, function(status) {
 
 
-	});
-	casper.run()
+});
+casper.run()
 
 
 
 casper.then(function() {
-    // temporarily registering listener
+	// temporarily registering listener
 });
 
 function test(url, count, total) {
@@ -57,23 +86,23 @@ function test(url, count, total) {
 	casper.thenOpen(url, function(status) {
 
 		//Page is loaded!
-		console.log('Current Payload: '+url);
+		console.log('Current Payload: ' + url);
 
-		if(count === total -1){
-			
-			
+		if (count === total - 1) {
+
+
 			casper.echo('Scan Completed!', 'INFO');
-			console.log(vulns.length+' payloads succeeded:\n');
+			console.log(vulns.length + ' payloads succeeded:\n');
 
-			if(vulns){
-			
-				for(i=0;i<vulns.length;i++){
-					casper.echo('Verified XSS:', 'ERROR'); 
-					console.log(vulns[i]+'\n');
+			if (vulns) {
+
+				for (i = 0; i < vulns.length; i++) {
+					casper.echo('Verified XSS:', 'ERROR');
+					console.log(vulns[i] + '\n');
 
 				}
 			}
-			
+
 		}
 
 	});
@@ -81,7 +110,6 @@ function test(url, count, total) {
 }
 
 for (i = 0; i < payloads.length; i++) {
-	
-		test(payloads[i], i, payloads.length);
-}
 
+	test(payloads[i], i, payloads.length);
+}
