@@ -9,13 +9,13 @@ Expected Usage
 Example #1
 
 `
-casperjs xss.js --url=http://example.com --param=vulnerableparam 
+casperjs xss.js --url="http://example.com" --param="vulnerable" 
 `
 
 Example Result:
 
 `
-http://example.com/vulnerableparam=%3cscript%3ealert(1)%3c%2fscript%3e
+http://example.com/?vulnerable=%3cscript%3ealert(1)%3c%2fscript%3e
 `
 
 Example #2

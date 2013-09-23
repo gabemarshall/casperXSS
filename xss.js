@@ -2,9 +2,12 @@ var casper = require('casper').create({
 	logLevel: 'warning',
 	verbose: true,
 	onAlert: function(msg) {
+		//msg = msg.replace(/\[object Casper\]/g,"");
+
 		tempMessage = 'XSS verified ' + msg + '';
-		casper.log('XSS verified ' + msg, 'warning');
-		vulns.push(tempMessage);
+		var vulnWarning = tempMessage.replace(/\[object Casper\]/g,"");
+		casper.log(vulnWarning);
+		vulns.push(vulnWarning);
 
 	},
 	XSSAuditingEnabled: false
@@ -45,7 +48,8 @@ if (cookieFile) {
 
 
 
-if (casper.cli.has("params") !== false) {
+if (casper.cli.has("param") !== false) {
+	console.log('heyo')
 	uri = url + '?' + params + '=';
 } 
 else if (casper.cli.has("string")){
