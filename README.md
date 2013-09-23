@@ -48,4 +48,10 @@ Example Result:
 http://example.com/#id=1&view=default%22%3cscript%3ealert(1)%3c%2fscript%3e
 `
 
+Install
+------
+
+1. Install [casperJS](http://docs.casperjs.org/en/latest/installation.html)
+2. Clone this repo 
+
 Credit: Rsnake for the xss payloads
