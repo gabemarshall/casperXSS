@@ -1,7 +1,7 @@
-casperXSS v0.0.2 by Gabe Marshall
+casperXSS v0.0.2
 =========
 
-Reflective/DOM XSS scanner built on casperJS
+DOM XSS scanner built with casperJS
 
 Expected Usage
 ------
@@ -12,7 +12,7 @@ Example #1
 casperjs xss.js --url="http://example.com" --param="vulnerable" 
 `
 
-Example Result:
+Example Payload:
 
 `
 http://example.com/?vulnerable=%3cscript%3ealert(1)%3c%2fscript%3e
@@ -25,7 +25,7 @@ casperjs xss.js --url="http://example.com" --string=#id=1&view=default'
 ```
 
 
-Example Result:
+Example Payload:
 
 `
 http://example.com/#id=1&view=default%27%3cscript%3ealert(1)%3c%2fscript%3e
@@ -42,7 +42,7 @@ Example #3
 casperjs xss.js --url="http://example.com" --string="#id=1&view=default\""
 `
 
-Example Result:
+Example Payload:
 
 `
 http://example.com/#id=1&view=default%22%3cscript%3ealert(1)%3c%2fscript%3e
