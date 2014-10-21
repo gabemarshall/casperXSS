@@ -1,4 +1,4 @@
-casperXSS v0.1.0
+casperXSS v0.1.1
 =========
 
 DOM XSS scanner built with casperJS
