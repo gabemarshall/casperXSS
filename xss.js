@@ -17,9 +17,18 @@ var utils = require('utils');
 var data = fs.read('rsnake.txt');
 var xss = data.toString().split("\n");
 
+var checks = ["sUshI"]
+
+var fullChecks = false
+var stringFoundInResponse = false
+
 var payloads = [];
 var cookieFile = casper.cli.get("cookiejar");
 var url = casper.cli.get("url");
+var url_backup = casper.cli.get(1);
+if (!url){
+	url = url_backup
+}
 var string = casper.cli.raw.get("string");
 var params = []
 var detectedParameters;
@@ -49,7 +58,29 @@ var casperXSS = {
             setpayloads()
         }
 
-        setParameters(this.setPayloads);
+        //setParameters(this.setPayloads);
+        setParameters(this.prelimCheck)
+    },
+    prelimCheck: function(){
+        for (z = 0; z < params.length; z++) {
+           
+
+            for (x = 0; x < checks.length; x++) {
+  
+                    var payloadString = uri + '?' + params[z] + '=' + checks[x]
+                    for (y = 0; y < params.length; y++) {
+                    	if(y != z){
+                    		payloadString += '&' + storedParamValues[y]
+                    	}
+                        
+                    }
+                    payloads.push(payloadString);
+                
+
+            }
+        }
+
+        casperXSS.scan()
     },
     setPayloads: function() {
 
@@ -110,6 +141,18 @@ var casperXSS = {
 
             casper.thenOpen(url, function(status) {
 
+		    var js = this.evaluate(function() {
+				return document; 
+			});
+
+			if (js.all[0].outerHTML.search(checks[0]) === -1){
+				
+			}
+			else {
+				this.echo("Value was reflected in either the DOM or Response..")
+				stringFoundInResponse = true
+			}	
+		   // this.echo(js.all[0].outerHTML);
                 //Page is loaded!
                 console.log('Current Payload: ' + url);
 
