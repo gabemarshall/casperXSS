@@ -12,6 +12,8 @@ var casper = require('casper').create({
     XSSAuditingEnabled: false
 });
 
+casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
+
 var fs = require('fs');
 var utils = require('utils');
 var data = fs.read('rsnake.txt');
@@ -23,7 +25,7 @@ var fullChecks = false
 var stringFoundInResponse = false
 
 var payloads = [];
-var cookieFile = casper.cli.get("cookiejar");
+var cookieCli = casper.cli.get("cookie");
 var url = casper.cli.get("url");
 var url_backup = casper.cli.get(1);
 if (!url){
@@ -140,21 +142,20 @@ var casperXSS = {
         function testPayload(url, count, total) {
 
             casper.thenOpen(url, function(status) {
-
 		    var js = this.evaluate(function() {
 				return document; 
 			});
 
-			if (js.all[0].outerHTML.search(checks[0]) === -1){
-				
+            console.log('Trying => ' + url);
+			
+            if (js.all[0].outerHTML.search(checks[0]) === -1){
+				this.echo("Value was not found in the DOM or Response...\n")
 			}
 			else {
 				this.echo("Value was reflected in either the DOM or Response..")
 				stringFoundInResponse = true
 			}	
-		   // this.echo(js.all[0].outerHTML);
-                //Page is loaded!
-                console.log('Current Payload: ' + url);
+                
 
                 if (count === total - 1) {
 
@@ -184,30 +185,29 @@ var casperXSS = {
     }
 }
 
-if (cookieFile) {
-    var filedata = fs.read(cookieFile);
-    var jsonCookies = JSON.parse(filedata);
-    console.log("Taking your cookies and putting them into a jar")
-    for (i = 0; i < jsonCookies.length; i++) {
-        phantom.addCookie({
-            'name': jsonCookies[i].name,
-            'value': jsonCookies[i].value,
-            'domain': jsonCookies[i].domain,
-            'hostOnly': jsonCookies[i].hostOnly,
-            'secure': jsonCookies[i].secure,
-            'session': jsonCookies[i].session,
-            'storeId': jsonCookies[i].storeId,
-            'httpOnly': jsonCookies[i].httpOnly
-        })
+if (cookieCli) {
+    cookies = cookieCli.split(";")
+    for (i = 0; i < cookies.length; i++) {
+        cookie = cookies[i].trim("")
+        if (cookie){
+            cookie = cookie.split("=")
+            name = cookie[0]
+            value = cookie[1]
+            phantom.addCookie({
+                'name': name,
+                'value': value,
+                'path':'/'
+            })
+        }
     }
 }
 
 
 if (!url) {
     console.log('\n' + intro)
-    console.log('\nA valid URL is missing, please try again Ex: casperjs xss.js --url=\"http://example.com?param1=vuln&param2=somevalue\"')
+    console.log('\nA valid URL is missing, please try again Ex: casperjs xss.js -u \"http://example.com?param1=vuln&param2=somevalue\"')
     console.log('Currently casperXSS only supports GET requests and parameters within the query string...more to come');
-    console.log('\nIf your scan needs to be authenticated, currently you can import cookies (in JSON format) via the --cookiejar option');
+    console.log('\nIf your scan needs to be authenticated, currently you can import cookies via the --cookie option (similar to SQLmap)');
     console.log('(Chrome extension \"Edit This Cookie\" works great at exporting to JSON)');
     console.log('\ncasperXSS v0.1.0')
     casper.exit();
